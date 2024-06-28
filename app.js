@@ -1,34 +1,37 @@
+const fs = require("fs");
+const path = require("path");
 
 const express = require("express");
-const path = require("path");
-const http = require('http');
-const mongoose = require("mongoose");
+const http = require('http')
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const usersRoutes = require("./routes/users-routes");
+const mongoose = require("mongoose");
+const { Server } = require("socket.io")
+const userRoutes = require("./routes/users-routes");
 const touristsRoutes = require("./routes/tourists-routes");
+
 const HttpError = require("./models/http-error");
+
 
 const app = express();
 
 app.use(bodyParser.json());
 
-const corsOptions = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "DELETE, GET, OPTIONS, PATCH, POST, PUT",
-  "Access-Control-Allow-Headers":
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  origin: "*",
-  credentials: true, //access-control-allow-credentials:true
-  optionSuccessStatus: 200,
-};
-
-//app.use(cors());
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   "Access-Control-Allow-Origin": "*",
+//   "Access-Control-Allow-Methods": "DELETE, GET, OPTIONS, PATCH, POST, PUT",
+//   "Access-Control-Allow-Headers":
+//     "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+//   origin: "*",
+//   credentials: true, //access-control-allow-credentials:true
+//   optionSuccessStatus: 200,
+// };
+app.use(cors());
 const PORT = process.env.PORT;
 const server = app.listen(PORT, () => {
   console.log("Listening on port: " + PORT);
 });
+console.log(process.env.PORT)
 
 
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
@@ -44,8 +47,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/", usersRoutes);
-app.use("/api/tourists/", touristsRoutes);
+app.use("/api", userRoutes);
+app.use("/api/tourists", touristsRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
@@ -67,6 +70,6 @@ mongoose
   .then(() => server)
   .catch((err) => {
     console.log(err);
-  });
+  })
 
 

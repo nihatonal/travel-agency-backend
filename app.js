@@ -13,11 +13,24 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use(cors());
+const corsOptions = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "DELETE, GET, OPTIONS, PATCH, POST, PUT",
+  "Access-Control-Allow-Headers":
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+  origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
+
+//app.use(cors());
+app.use(cors(corsOptions));
 const PORT = process.env.PORT;
 const server = app.listen(PORT, () => {
   console.log("Listening on port: " + PORT);
 });
+
+
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use((req, res, next) => {
@@ -46,6 +59,7 @@ app.use((error, req, res, next) => {
   res.status(error.code || 500);
   res.json({ message: error.message || "An unknown error occurred!" });
 });
+
 mongoose
   .connect(
     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.wu6wj.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
